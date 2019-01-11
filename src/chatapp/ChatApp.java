@@ -11,11 +11,14 @@ package chatapp;
  */
 public class ChatApp {
 
-    /**
-     * @param args the command line arguments
-     */
     public static void main(String[] args) {
-        // TODO code application logic here
+        ClientView view = new ClientView();
+        ClientModel model = new ClientModel();
+
+        ClientController controller = new ClientController(view, model);
+
+        controller.reciveMessagesFromServer();
+
     }
-    
+
 }

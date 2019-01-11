@@ -20,11 +20,10 @@ public class Server extends Thread {
     private static ArrayList<DataOutputStream> sendMessages = new ArrayList<>(); // contains out of client 1 , contains client 2 
     private static ArrayList<String> names = new ArrayList<String>();
 
-    private String name;
+    private String clientName;
 
     // client 1 connection 
     // client 
-
     public Server(Socket socket) {
         this.socket = socket;
     }
@@ -34,41 +33,43 @@ public class Server extends Thread {
         try {
             in = new DataInputStream(socket.getInputStream());
             out = new DataOutputStream(socket.getOutputStream());
-            name = in.readUTF();
+            clientName = in.readUTF();
             String clientsConnected = "";
+            // list of the active clients to the new connected client 
             for (String s : names) {
                 clientsConnected += s + " is active \n";
             }
+            // the first client to connect
             if (clientsConnected.equals("")) {
                 clientsConnected += "Lucky You , You're the first to connect";
             }
             out.writeUTF(clientsConnected);
 
-            broadcast(name + " has Arrived");
+            broadcast(clientName + " has Arrived");
 
-            names.add(name);
+            names.add(clientName);
 
             sendMessages.add(out);
-
+            // read messages from clients then broadcast it back to all the clients 
             while (true) {
                 String input = in.readUTF();
-                broadcast(name + ": " + input);
+                broadcast(clientName + ": " + input);
             }
 
         } catch (IOException ex) {
-            System.out.println("Client " + name + " Disconnected");
+            System.out.println("Client " + clientName + " Disconnected");
         } finally {
-            // This client is going down!  Remove its name and its print
-            // writer from the sets, and close its socket.
-            if (name != null) {
-                names.remove(name);
+            // This client is going down!  Remove its clientName and its buffered 
+            // Reader from the sets, and close its socket.
+            if (clientName != null) {
+                names.remove(clientName);
             }
             if (out != null) {
                 sendMessages.remove(out);
             }
             try {
                 socket.close();
-                broadcast("Client " + name + " Disconnected");
+                broadcast("Client " + clientName + " Disconnected");
             } catch (IOException e) {
             }
         }
